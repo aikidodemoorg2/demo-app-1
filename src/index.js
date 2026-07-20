@@ -15,8 +15,23 @@ app.get("/error", (req, res) => {
 });
 
 app.get("/payments", (req, res) => {
-  const STRIPE_API_KEY = "sk_live_fakestripeapikeyleaked12"
-  res.status(200).send(STRIPE_API_KEY)
+  // Retrieve Stripe API key from environment variables, not hardcoded
+  const STRIPE_API_KEY = process.env.STRIPE_API_KEY;
+  
+  // Never expose the API key in responses
+  if (!STRIPE_API_KEY) {
+    return res.status(500).json({ 
+      error: "Payment service configuration error" 
+    });
+  }
+  
+  // Return safe payment configuration without exposing credentials
+  res.status(200).json({ 
+    status: "ready",
+    provider: "stripe",
+    // API key is available for internal use but never sent to client
+    message: "Payment service is configured"
+  });
 });
 
 app.use((err, req, res, next) => {
