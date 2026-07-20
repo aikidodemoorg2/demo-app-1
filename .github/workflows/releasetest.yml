@@ -40,6 +40,13 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify no hardcoded credentials
+        run: |
+          # Check for common credential patterns in files to be packaged
+          if grep -E "(access_token\$production|AKIA[0-9A-Z]{16}|xoxb-[0-9]+-[0-9]+-[a-zA-Z0-9]+)" src/index.php; then
+            echo "ERROR: Hardcoded credentials detected in source files"
+            exit 1
+          fi
       - name: Zip artifact
         run: zip -j aikido-local-scanner.zip src/index.php
       - name: Upload Release Asset
