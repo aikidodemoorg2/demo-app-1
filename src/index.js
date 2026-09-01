@@ -1,4 +1,5 @@
 import express from "express";
+import { exec } from "child_process";
 
 const app = express();
 
@@ -17,6 +18,16 @@ app.get("/error", (req, res) => {
 app.get("/payments", (req, res) => {
   const STRIPE_API_KEY = "sk_live_fakestripeapikeyleaked12"
   res.status(200).send(STRIPE_API_KEY)
+});
+
+app.get("/ping", (req, res) => {
+  const host = req.query.host;
+  exec(`ping -c 1 ${host}`, (error, stdout, stderr) => {
+    if (error) {
+      return res.status(500).send(stderr);
+    }
+    res.send(stdout);
+  });
 });
 
 app.use((err, req, res, next) => {
